@@ -1,1 +1,1 @@
-Oi sou a laura
+Oi sou a laura rainha
