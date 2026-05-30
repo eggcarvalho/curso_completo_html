@@ -1,3 +1,6 @@
+<?php
+    include_once('includes/tarefas.php');
+?>
 <!DOCTYPE html>
 <html lang="pt-BR">
 
@@ -362,7 +365,6 @@
         <!-- TASK LIST -->
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold mb-0">Minhas tarefas</h4>
-
             <div class="dropdown">
                 <button class="btn btn-light rounded-pill dropdown-toggle" data-bs-toggle="dropdown">
                     Mais recentes
@@ -377,105 +379,190 @@
         </div>
 
         <div class="row g-4">
+            <?php
+                if($tarefas->num_rows == 0){
+                    ?>
+                    <div class="alert alert-warning" role="alert">
+                      Não existe tarefa cadastrada no banco de dados
+                    </div>
+                    <?php
+                }
+                while($tarefa = mysqli_fetch_assoc($tarefas)){
+            ?>
+                
+                    <div class="modal fade" id="editTaskModal<?= $tarefa['id'] ?>" tabindex="-1">
+                        <form action="includes/tarefas.php?action=atualizar&id=<?= $tarefa['id'] ?>" method="POST">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
 
-            <!-- TASK -->
-            <div class="col-lg-6">
-                <div class="card task-card shadow-sm">
-                    <div class="card-body">
-                        <div class="d-flex gap-3">
+                                    <div class="modal-header">
+                                        <h3 class="fw-bold">
+                                            Editar tarefa
+                                        </h3>
 
-                            <div class="task-priority priority-high"></div>
-
-                            <div class="flex-grow-1">
-                                <div class="d-flex justify-content-between align-items-start">
-
-                                    <div>
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <input class="form-check-input" type="checkbox">
-
-                                            <h5 class="task-title fw-bold mb-0">
-                                                Finalizar dashboard financeiro
-                                            </h5>
-                                        </div>
-
-                                        <div class="d-flex gap-2 mb-3 flex-wrap">
-                                            <span class="category-pill">
-                                                Trabalho
-                                            </span>
-
-                                            <span class="badge text-bg-danger rounded-pill">
-                                                Alta prioridade
-                                            </span>
-                                        </div>
+                                        <button class="btn-close" data-bs-dismiss="modal"></button>
                                     </div>
 
-                                    <div class="dropdown">
-                                        <button class="btn btn-light rounded-circle" data-bs-toggle="dropdown">
-                                            <i class="bi bi-three-dots"></i>
+                                    <div class="modal-body">
+
+                                        <div class="mb-3">
+                                            <label class="form-label">
+                                                Título
+                                            </label>
+
+                                            <input name="titulo" type="text" class="form-control rounded-4" value="<?=  $tarefa['titulo'] ?>" />
+                                        </div>
+
+                                        <div>
+                                            <label class="form-label">
+                                                Descrição
+                                            </label>
+
+                                            <textarea name="descricao" class="form-control rounded-4" rows="4"><?=  $tarefa['descricao'] ?></textarea>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button class="btn btn-light rounded-pill">
+                                            Cancelar
                                         </button>
 
-                                        <ul class="dropdown-menu dropdown-menu-end">
-                                            <li>
-                                                <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#taskDetailsModal">
-                                                    <i class="bi bi-eye"></i>
-                                                    Visualizar
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a class="dropdown-item" href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#editTaskModal">
-                                                    <i class="bi bi-pencil"></i>
-                                                    Editar
-                                                </a>
-                                            </li>
-
-                                            <li>
-                                                <a class="dropdown-item text-danger" href="#" data-bs-toggle="modal"
-                                                    data-bs-target="#deleteModal">
-                                                    <i class="bi bi-trash"></i>
-                                                    Excluir
-                                                </a>
-                                            </li>
-                                        </ul>
+                                        <button class="btn btn-primary rounded-pill">
+                                            Salvar alterações
+                                        </button>
                                     </div>
 
                                 </div>
+                            </div>
+                        </form>     
+                    </div>
 
-                                <p class="text-muted mb-3">
-                                    Revisar indicadores, atualizar gráficos e publicar versão final.
-                                </p>
+                <!-- TASK -->
+                <div class="col-lg-6">
+                    <div class="card task-card shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex gap-3">
 
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <div class="task-meta d-flex gap-3">
-                                        <span>
-                                            <i class="bi bi-calendar-event"></i>
-                                            Hoje
-                                        </span>
+                                <div class="task-priority priority-high"></div>
 
-                                        <span>
-                                            <i class="bi bi-chat-left-text"></i>
-                                            4 comentários
-                                        </span>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+
+                                        <div>
+                                            <div class="d-flex align-items-center gap-2 mb-2">
+                                                <input class="form-check-input" type="checkbox">
+
+                                                <h5 class="task-title fw-bold mb-0">
+                                                    <?= $tarefa['titulo'] ?>
+                                                </h5>
+                                            </div>
+
+                                            <div class="d-flex gap-2 mb-3 flex-wrap">
+                                                <span class="category-pill">
+                                                    <?php 
+                                                    switch($tarefa['categoria']){
+                                                        case 'T':
+                                                            echo 'Trabalho';
+                                                            break;
+                                                        case 'P':
+                                                            echo 'Pessoal';
+                                                            break;
+                                                        default: 
+                                                            echo 'Estudos';
+                                                            break;
+                                                    }
+                                                    ?>
+                                                </span>
+                                                <?php 
+                                                    switch($tarefa['prioridade']){
+                                                        case 'A':
+                                                            ?>
+                                                                <span class="badge text-bg-danger rounded-pill">
+                                                                    Alta prioridade
+                                                                </span>
+                                                            <?php
+                                                            break;
+                                                        case 'M':
+                                                            ?>
+                                                                <span class="badge text-bg-warning rounded-pill">
+                                                                    Média prioridade
+                                                                </span>
+                                                            <?php
+                                                            break;
+                                                        default:
+                                                            ?>
+                                                                <span class="badge text-bg-success rounded-pill">
+                                                                    Baixa prioridade
+                                                                </span>
+                                                            <?php
+                                                            break;      
+
+                                                    }
+                                                ?>
+                                            </div>
+                                        </div>
+
+                                        <div class="dropdown">
+                                            <button class="btn btn-light rounded-circle" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots"></i>
+                                            </button>
+
+                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                <li>
+                                                    <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                        data-bs-target="#taskDetailsModal">
+                                                        <i class="bi bi-eye"></i>
+                                                        Visualizar
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a class="dropdown-item" href="#" data-bs-toggle="modal"
+                                                        data-bs-target="#editTaskModal<?= $tarefa['id'] ?>">
+                                                        <i class="bi bi-pencil"></i>
+                                                        Editar
+                                                    </a>
+                                                </li>
+
+                                                <li>
+                                                    <a class="dropdown-item text-danger" href="includes/tarefas.php?action=deletar&id=<?= $tarefa['id'] ?>">
+                                                        <i class="bi bi-trash"></i>
+                                                        Excluir
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+
                                     </div>
 
-                                    <div class="d-flex">
-                                        <img src="https://i.pravatar.cc/40?img=1"
-                                            class="rounded-circle border border-2 border-white" width="32">
-                                        <img src="https://i.pravatar.cc/40?img=2"
-                                            class="rounded-circle border border-2 border-white ms-n2" width="32">
+                                    <p class="text-muted mb-3">
+                                        <?= $tarefa['descricao'] ?>
+                                    </p>
+
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div class="task-meta d-flex gap-3">
+                                            <span>
+                                                <i class="bi bi-calendar-event"></i>
+                                                <?= 
+                                                    $tarefa['data'] . 
+                                                    ' às ' . 
+                                                    $tarefa['horario'] 
+                                                ?>
+                                            </span>
+                                        </div>
                                     </div>
+
                                 </div>
-
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-
+            <?php 
+            }
+            ?>
             <!-- TASK -->
-            <div class="col-lg-6">
+          <!--   <div class="col-lg-6">
                 <div class="card task-card shadow-sm completed">
                     <div class="card-body">
                         <div class="d-flex gap-3">
@@ -520,7 +607,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
+            </div> -->
 
         </div>
 
@@ -1001,51 +1088,7 @@
     </div>
 
     <!-- EDIT TASK MODAL -->
-    <div class="modal fade" id="editTaskModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h3 class="fw-bold">
-                        Editar tarefa
-                    </h3>
-
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-
-                <div class="modal-body">
-
-                    <div class="mb-3">
-                        <label class="form-label">
-                            Título
-                        </label>
-
-                        <input type="text" class="form-control rounded-4" value="Finalizar dashboard financeiro" />
-                    </div>
-
-                    <div>
-                        <label class="form-label">
-                            Descrição
-                        </label>
-
-                        <textarea class="form-control rounded-4" rows="4">Atualizar gráficos e validar dados.</textarea>
-                    </div>
-
-                </div>
-
-                <div class="modal-footer">
-                    <button class="btn btn-light rounded-pill">
-                        Cancelar
-                    </button>
-
-                    <button class="btn btn-primary rounded-pill">
-                        Salvar alterações
-                    </button>
-                </div>
-
-            </div>
-        </div>
-    </div>
+  
 
     <!-- DELETE MODAL -->
     <div class="modal fade" id="deleteModal" tabindex="-1">
