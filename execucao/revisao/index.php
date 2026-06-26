@@ -1,3 +1,7 @@
+<?php 
+require_once "config.php";
+require_once "./include/models/subscription_model.php";
+?>
 <!DOCTYPE html>
 <html lang="pt">
 <head>
@@ -77,31 +81,31 @@
             <!-- você pode injetar as variáveis do banco direto na função JS, ex: -->
             <!-- onclick="abrirModalEditar(<?php echo $linha['id']; ?>, '<?php echo $linha['servico']; ?>', <?php echo $linha['valor']; ?>)" -->
             <!-- ========================================================= -->
-            
-            <tr>
-                <td>Netflix</td>
-                <td>R$ 39,90</td>
-                <td>
-                    <!-- Dados estáticos passados para a função JavaScript -->
-                    <button class="btn-editar" onclick="abrirModalEditar(1, 'Netflix', 39.90)">Editar</button>
-                    <a class="btn-excluir" href="#">Cancelar</a>
-                </td>
-            </tr>
-            <tr>
-                <td>Spotify Premium</td>
-                <td>R$ 21,90</td>
-                <td>
-                    <!-- Dados estáticos passados para a função JavaScript -->
-                    <button class="btn-editar" onclick="abrirModalEditar(2, 'Spotify Premium', 21.90)">Editar</button>
-                    <a class="btn-excluir" href="#">Cancelar</a>
-                </td>
-            </tr>
-            
+            <?php 
+                $assinaturas = listarAssinatura();
+
+                $total = 0.00;
+
+                while($assinatura = mysqli_fetch_assoc($assinaturas)){
+                    $total += $assinatura['valor'];
+                ?>
+                <tr>
+                    <td><?= $assinatura['servico'] ?></td>
+                    <td>R$ <?= $assinatura['valor'] ?></td>
+                    <td>
+                        <!-- Dados estáticos passados para a função JavaScript -->
+                        <button class="btn-editar" onclick="abrirModalEditar('<?= $assinatura['id'] ?>', '<?= $assinatura['servico'] ?>', '<?= $assinatura['valor'] ?>')">Editar</button>
+                        <a class="btn-excluir" href="./assinaturas.php?action=delete&id=<?= $assinatura['id'] ?>">Cancelar</a>
+                    </td>
+                </tr>   
+                <?php 
+            }
+            ?>         
         </tbody>
     </table>
 
     <div class="total">
-        Custo Total Mensal: R$ 61,80
+        Custo Total Mensal: R$ <?= $total ?>
     </div>
 </div>
 
